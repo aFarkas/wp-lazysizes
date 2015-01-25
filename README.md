@@ -1,2 +1,2 @@
 # wp-lazysizes
-Brings best lazy load and responsive images script to wordpress
+Brings lazySizes.js to wordpress
