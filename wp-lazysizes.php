@@ -17,6 +17,11 @@ defined('ABSPATH') or die("No script kiddies please!");
  */
 if ( ! class_exists( 'LazySizes' ) ) :
 
+    $lazySizesDefaults = array(
+        'expand' => 150,
+        'optimumx' => 'auto',
+        'intrinsicRatio' => 'false'
+    );
     require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );
 
 
@@ -42,21 +47,16 @@ if ( ! class_exists( 'LazySizes' ) ) :
         }
 
         static  function getOptions() {
-            self::$options = get_option( 'lazysizes_settings', array());
+            global $lazySizesDefaults;
+            self::$options = wp_parse_args( get_option( 'lazysizes_settings', $lazySizesDefaults), $lazySizesDefaults );
 
-            if(!isset(self::$options['optimumx'])){
-                self::$options['optimumx'] = 'auto';
-            }
 
-            if(isset(self::$options['expand']) && is_numeric(self::$options['expand'])){
+            if(is_numeric(self::$options['expand'])){
                 self::$options['expand'] = (float)self::$options['expand'];
             } else {
                 self::$options['expand'] = 150;
             }
 
-            if(!isset(self::$options['intrinsicRatio'])){
-                self::$options['intrinsicRatio'] = 'false';
-            }
 
         }
 

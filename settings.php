@@ -11,9 +11,10 @@ function lazysizes_add_admin_menu(  ) {
 
 
 function lazysizes_settings_init(  ) {
-
+    //delete_option( 'lazysizes_settings' );
+    global $lazySizesDefaults;
     register_setting( 'pluginPage', 'lazysizes_settings' );
-    add_option( 'lazysizes_settings', array());
+    add_option( 'lazysizes_settings', $lazySizesDefaults);
 
     add_settings_section(
         'lazysizes_pluginPage_section',
