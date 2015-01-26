@@ -19,7 +19,7 @@ if ( ! class_exists( 'LazySizes' ) ) :
 
     $lazySizesDefaults = array(
         'expand' => 150,
-        'optimumx' => 'auto',
+        'optimumx' => 'false',
         'intrinsicRatio' => 'false'
     );
     require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );

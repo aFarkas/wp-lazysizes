@@ -11,7 +11,6 @@ function lazysizes_add_admin_menu(  ) {
 
 
 function lazysizes_settings_init(  ) {
-    //delete_option( 'lazysizes_settings' );
     global $lazySizesDefaults;
     register_setting( 'pluginPage', 'lazysizes_settings' );
     add_option( 'lazysizes_settings', $lazySizesDefaults);
@@ -32,7 +31,7 @@ function lazysizes_settings_init(  ) {
     );
 
     add_settings_field(
-        'intrinsicRatiox',
+        'intrinsicRatio',
         __( 'responsive intrinsic ratio box', 'wordpress' ),
         'lazysizes_intrinsicRatioSetting',
         'pluginPage',
@@ -55,8 +54,8 @@ function lazysizes_optimumxSetting(  ) {
     $options = get_option( 'lazysizes_settings' );
     ?>
     <select name='lazysizes_settings[optimumx]'>
-        <option value='auto' <?php selected( $options['optimumx'], 'auto' ); ?>>auto</option>
         <option value='false' <?php selected( $options['optimumx'], 'false' ); ?>>no HIGH DPI constraints</option>
+        <option value='auto' <?php selected( $options['optimumx'], 'auto' ); ?>>auto (recommended if you use img[srcset])</option>
         <option value='2' <?php selected( $options['optimumx'], 2 ); ?>>2</option>
         <option value='1.6' <?php selected( $options['optimumx'], 1.6 ); ?>>1.6</option>
         <option value='1.2' <?php selected( $options['optimumx'], 1.2 ); ?>>1.2</option>
@@ -69,7 +68,7 @@ function lazysizes_expandSetting(  ) {
 
     $options = get_option( 'lazysizes_settings' );
     ?>
-    <input type='number' min="20" max="300" name='lazysizes_settings[expand]' value='<?php echo $options['expand']; ?>'>
+    <input type='number' min="9" max="300" name='lazysizes_settings[expand]' value='<?php echo $options['expand']; ?>'>
 <?php
 
 }
