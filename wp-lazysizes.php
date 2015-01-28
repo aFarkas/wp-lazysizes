@@ -18,7 +18,7 @@ defined('ABSPATH') or die("No script kiddies please!");
 if ( ! class_exists( 'LazySizes' ) ) :
 
     $lazySizesDefaults = array(
-        'expand' => 150,
+        'expand' => 80,
         'optimumx' => 'false',
         'intrinsicRatio' => 'false'
     );
@@ -54,7 +54,7 @@ if ( ! class_exists( 'LazySizes' ) ) :
             if(is_numeric(self::$options['expand'])){
                 self::$options['expand'] = (float)self::$options['expand'];
             } else {
-                self::$options['expand'] = 150;
+                self::$options['expand'] = $lazySizesDefaults['expand'];
             }
 
 
@@ -152,6 +152,7 @@ if ( ! class_exists( 'LazySizes' ) ) :
 <script>
 window.lazySizesConfig = window.lazySizesConfig || {};
 window.lazySizesConfig.expand = <?php echo $expand; ?>;
+window.lazySizesConfig.addClasses = true;
 </script>
 <?php
 

@@ -1,21 +1,22 @@
-.lazyload {
-    opacity: 0;
-}
-
 .no-js .lazyload {
     display: none;
+}
+
+.lazyload {
+    opacity: 0;
 }
 
 .lazyloading {
     opacity: 1;
     transition: 600ms opacity;
     background: #f7f7f7 url(../imgs/loader.gif) no-repeat center;
-    min-height: 50px;
+    min-height: 35px;
+    min-width: 35px;
 }
 
 .lazyloaded {
     opacity: 1;
-    transition: 10ms opacity;
+    transition: 9ms opacity;
     background: none;
 }
 
@@ -33,6 +34,9 @@
 }
 
 .intrinsic-ratio-box img,
+.intrinsic-ratio-box iframe,
+.intrinsic-ratio-box video,
+.intrinsic-ratio-box object,
 .intrinsic-ratio-box .intrinsic-ratio-element {
     position: absolute;
     top: 0;
