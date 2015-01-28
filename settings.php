@@ -30,13 +30,26 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section'
     );
 
+    /*
     add_settings_field(
-        'intrinsicRatio',
-        __( 'responsive intrinsic ratio box', 'wordpress' ),
-        'lazysizes_intrinsicRatioSetting',
+        'iframes',
+        __( 'lazyload iframes', 'wordpress' ),
+        'checkBox',
         'pluginPage',
-        'lazysizes_pluginPage_section'
+        'lazysizes_pluginPage_section',
+        'iframes'
     );
+
+    add_settings_field(
+        'autosize',
+        __( 'Calculate sizes attribute automatically', 'wordpress' ),
+        'checkBox',
+        'pluginPage',
+        'lazysizes_pluginPage_section',
+        'autosize'
+    );
+    */
+
 
     add_settings_field(
         'optimumx',
@@ -46,6 +59,23 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section'
     );
 
+    add_settings_field(
+        'intrinsicRatio',
+        __( 'responsive intrinsic ratio box', 'wordpress' ),
+        'lazysizes_intrinsicRatioSetting',
+        'pluginPage',
+        'lazysizes_pluginPage_section'
+    );
+
+}
+
+
+function checkBox( $name ) {
+
+    $options = get_option( 'lazysizes_settings' );
+    ?>
+    <input type='checkbox' name='lazysizes_settings[<?php echo $name; ?>]' <?php checked( $options[$name], 'true' ); ?> value='true'>
+<?php
 
 }
 
@@ -72,6 +102,7 @@ function lazysizes_expandSetting(  ) {
 <?php
 
 }
+
 
 
 function lazysizes_intrinsicRatioSetting(  ) {

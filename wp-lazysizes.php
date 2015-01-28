@@ -20,7 +20,9 @@ if ( ! class_exists( 'LazySizes' ) ) :
     $lazySizesDefaults = array(
         'expand' => 80,
         'optimumx' => 'false',
-        'intrinsicRatio' => 'false'
+        'intrinsicRatio' => 'false',
+        'iframes' => 'false',
+        'autosize' => 'true'
     );
     require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );
 
@@ -36,13 +38,14 @@ if ( ! class_exists( 'LazySizes' ) ) :
 
                 self::getOptions();
 
-                add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_styles' ), 9 );
-                add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ), 99 );
-                add_filter( 'the_content', array( __CLASS__, '_filter_images' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
-                add_filter( 'post_thumbnail_html', array( __CLASS__, '_filter_images' ), 99 );
+                add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_styles' ), 1 );
+                add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ), 200 );
+                add_filter( 'the_content', array( __CLASS__, '_filter_images' ), 200 ); // run this later, so other content filters have run, including image_add_wh on WP.com
+                add_filter( 'post_thumbnail_html', array( __CLASS__, '_filter_images' ), 200 );
+                add_filter( 'widget_text', array( __CLASS__, '_filter_images' ), 200 );
                 add_filter( 'get_avatar', function($content){
                     return self::_filter_images($content, 'noratio');
-                }, 99 );
+                }, 200 );
             }
         }
 
@@ -75,7 +78,7 @@ if ( ! class_exists( 'LazySizes' ) ) :
 
         static function _filter_images( $content, $type = 'ratio' ) {
 
-            if( is_feed() ) {
+            if( is_feed() || intval( get_query_var( 'print' ) ) == 1 || intval( get_query_var( 'printpage' ) ) == 1 || strpos( $_SERVER['HTTP_USER_AGENT'], 'Opera Mini' ) !== false ) {
                 return $content;
             }
 
