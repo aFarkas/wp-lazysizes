@@ -5,7 +5,7 @@ add_action( 'admin_init', 'lazysizes_settings_init' );
 
 function lazysizes_add_admin_menu(  ) {
 
-    add_options_page( 'wp-lazysizes', 'wp-lazysizes', 'manage_options', 'wp-lazysizes', 'lazysizes_options_page' );
+    add_options_page( 'WP LazySizes', 'WP LazySizes', 'manage_options', 'wp-lazysizes', 'lazysizes_options_page' );
 
 }
 
@@ -30,7 +30,7 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section'
     );
 
-    /*
+
     add_settings_field(
         'iframes',
         __( 'lazyload iframes', 'wordpress' ),
@@ -39,7 +39,7 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section',
         'iframes'
     );
-
+    /*
     add_settings_field(
         'autosize',
         __( 'Calculate sizes attribute automatically', 'wordpress' ),
@@ -144,5 +144,3 @@ function lazysizes_options_page(  ) {
 <?php
 
 }
-
-?>
