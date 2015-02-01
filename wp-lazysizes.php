@@ -44,7 +44,7 @@ if ( ! class_exists( 'LazySizes' ) ) :
                 add_filter( 'post_thumbnail_html', array( __CLASS__, '_filter_images' ), 200 );
                 add_filter( 'widget_text', array( __CLASS__, '_filter_images' ), 200 );
                 add_filter( 'get_avatar', function($content){
-                    return self::_filter_images($content, 'noratio');
+                    return LazySizes::_filter_images($content, 'noratio');
                 }, 200 );
             }
         }
