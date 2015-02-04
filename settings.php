@@ -67,6 +67,14 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section'
     );
 
+	add_settings_field(
+		'preloadAfterLoad',
+		__( 'load after Onload', 'wordpress' ),
+		'lazysizes_preloadAfterLoad',
+		'pluginPage',
+		'lazysizes_pluginPage_section'
+	);
+
 }
 
 
@@ -89,6 +97,19 @@ function lazysizes_optimumxSetting(  ) {
         <option value='2' <?php selected( $options['optimumx'], 2 ); ?>>2</option>
         <option value='1.6' <?php selected( $options['optimumx'], 1.6 ); ?>>1.6</option>
         <option value='1.2' <?php selected( $options['optimumx'], 1.2 ); ?>>1.2</option>
+    </select>
+<?php
+
+}
+
+function lazysizes_preloadAfterLoad(  ) {
+
+    $options = get_option( 'lazysizes_settings' );
+    ?>
+    <select name='lazysizes_settings[preloadAfterLoad]'>
+	    <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
+	    <option value='false' <?php selected( $options['preloadAfterLoad'], 'false' ); ?>>Off</option>
+        <option value='smart' <?php selected( $options['preloadAfterLoad'], 2 ); ?>>Smart (desktop - on, mobile - off)</option>
     </select>
 <?php
 
