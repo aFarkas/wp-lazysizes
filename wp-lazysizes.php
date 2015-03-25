@@ -9,7 +9,7 @@ defined('ABSPATH') or die("No script kiddies please!");
  * Plugin Name:       WP LazySizes
  * Plugin URI:        https://github.com/aFarkas/wp-lazysizes
  * Description:       Lazyload responsive images with automatic sizes calculation
- * Version:           0.9.0
+ * Version:           0.9.1
  * Author:            Alexander Farkas
  * Author URI:        https://github.com/aFarkas/
  * License:           GPL-2.0+
@@ -18,20 +18,19 @@ defined('ABSPATH') or die("No script kiddies please!");
 if ( ! class_exists( 'LazySizes' ) ) :
 
     $lazySizesDefaults = array(
-        'expand' => 80,
+        'expand' => 315,
         'optimumx' => 'false',
         'intrinsicRatio' => 'false',
         'iframes' => 'false',
         'autosize' => 'true',
-	    'preloadAfterLoad' => 'true'
+	    'preloadAfterLoad' => 'false'
     );
     require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );
 
 
-
     class LazySizes {
 
-        const version = '0.9.0';
+        const version = '0.9.1';
         private static $options = array();
 
         function __construct() {
@@ -63,8 +62,6 @@ if ( ! class_exists( 'LazySizes' ) ) :
             } else {
                 self::$options['expand'] = $lazySizesDefaults['expand'];
             }
-
-
         }
 
         protected function _get_option($name)
@@ -101,7 +98,6 @@ if ( ! class_exists( 'LazySizes' ) ) :
 	                window.lazySizesConfig.preloadAfterLoad = <?= $this->_get_option('preloadAfterLoad'); ?>;
 	            <?php endif; ?>
                 window.lazySizesConfig.expand = <?= $this->_get_option('expand'); ?>;
-                window.lazySizesConfig.addClasses = true;
             </script>
         <?php
 

@@ -4,9 +4,7 @@ add_action( 'admin_init', 'lazysizes_settings_init' );
 
 
 function lazysizes_add_admin_menu(  ) {
-
     add_options_page( 'WP LazySizes', 'WP LazySizes', 'manage_options', 'wp-lazysizes', 'lazysizes_options_page' );
-
 }
 
 
@@ -39,7 +37,7 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section',
         'iframes'
     );
-    /*
+
     add_settings_field(
         'autosize',
         __( 'Calculate sizes attribute automatically', 'wordpress' ),
@@ -48,7 +46,7 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section',
         'autosize'
     );
-    */
+
 
 
     add_settings_field(
@@ -81,6 +79,10 @@ function lazysizes_settings_init(  ) {
 function checkBox( $name ) {
 
     $options = get_option( 'lazysizes_settings' );
+
+    if(!isset($options[$name])){
+        $options[$name] = false;
+    }
     ?>
     <input type='checkbox' name='lazysizes_settings[<?php echo $name; ?>]' <?php checked( $options[$name], 'true' ); ?> value='true'>
 <?php
@@ -90,6 +92,9 @@ function checkBox( $name ) {
 function lazysizes_optimumxSetting(  ) {
 
     $options = get_option( 'lazysizes_settings' );
+    if(!isset($options['optimumx'])){
+        $options['optimumx'] = 'false';
+    }
     ?>
     <select name='lazysizes_settings[optimumx]'>
         <option value='false' <?php selected( $options['optimumx'], 'false' ); ?>>no HIGH DPI constraints</option>
@@ -105,10 +110,13 @@ function lazysizes_optimumxSetting(  ) {
 function lazysizes_preloadAfterLoad(  ) {
 
     $options = get_option( 'lazysizes_settings' );
+    if(!isset($options['preloadAfterLoad'])){
+        $options['preloadAfterLoad'] = 'false';
+    }
     ?>
     <select name='lazysizes_settings[preloadAfterLoad]'>
-	    <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
 	    <option value='false' <?php selected( $options['preloadAfterLoad'], 'false' ); ?>>Off</option>
+	    <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
         <option value='smart' <?php selected( $options['preloadAfterLoad'], 2 ); ?>>Smart (desktop - on, mobile - off)</option>
     </select>
 <?php
@@ -119,7 +127,7 @@ function lazysizes_expandSetting(  ) {
 
     $options = get_option( 'lazysizes_settings' );
     ?>
-    <input type='number' min="9" max="300" name='lazysizes_settings[expand]' value='<?php echo $options['expand']; ?>'>
+    <input type='number' min="40" max="400" name='lazysizes_settings[expand]' value='<?php echo $options['expand']; ?>'>
 <?php
 
 }
@@ -129,6 +137,9 @@ function lazysizes_expandSetting(  ) {
 function lazysizes_intrinsicRatioSetting(  ) {
 
     $options = get_option( 'lazysizes_settings' );
+    if(!isset($options['intrinsicRatio'])){
+        $options['intrinsicRatio'] = 'false';
+    }
     ?>
     <select name='lazysizes_settings[intrinsicRatio]'>
         <option value='false' <?php selected( $options['intrinsicRatio'], 'false' ); ?>>no intrinsic ratio box</option>
