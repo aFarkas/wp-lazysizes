@@ -18,7 +18,7 @@ defined('ABSPATH') or die("No script kiddies please!");
 if ( ! class_exists( 'LazySizes' ) ) :
 
     $lazySizesDefaults = array(
-        'expand' => 315,
+        'expand' => 359,
         'optimumx' => 'false',
         'intrinsicRatio' => 'false',
         'iframes' => 'false',
