@@ -74,13 +74,13 @@ if ( ! class_exists( 'LazySizes' ) ) :
         }
 
         function add_styles() {
-            wp_enqueue_style( 'lazysizes', $this->get_url( 'css/lazysizes.css', __FILE__ ), array(), self::version );
+            wp_enqueue_style('lazysizes', $this->get_url('css/lazysizes.css'), array(), self::version);
         }
 
         function add_scripts() {
-            wp_enqueue_script( 'lazysizes', $this->get_url( 'js/lazysizes/lazysizes.min.js', __FILE__ ), array(), self::version, false );
+            wp_enqueue_script('lazysizes', $this->get_url('js/lazysizes/lazysizes.min.js'), array(), self::version, false);
             if($this->_get_option('optimumx') != 'false'){
-                wp_enqueue_script( 'lazysizesoptimumx', $this->get_url( 'js/lazysizes/plugins/optimumx/ls.optimumx.min.js', __FILE__ ), array(), self::version, false );
+                wp_enqueue_script('lazysizesoptimumx', $this->get_url('js/lazysizes/plugins/optimumx/ls.optimumx.min.js'), array(), self::version, false);
             }
         }
 
@@ -124,22 +124,10 @@ if ( ! class_exists( 'LazySizes' ) ) :
                 return $content;
             }
 
-            $ratioBox = false;
-
             $respReplace = 'data-sizes="auto" data-srcset=';
 
             if($this->_get_option('optimumx') != 'false'){
                 $respReplace = 'data-optimumx="' . $this->_get_option('optimumx') . '" ' . $respReplace;
-            }
-
-            if($type == 'ratio' && $this->_get_option('intrinsicRatio') != 'false'){
-                $ratioBox = '<span class="intrinsic-ratio-box';
-
-                if($this->_get_option('intrinsicRatio') == 'animated'){
-                    $ratioBox .= ' lazyload" data-expand="-1';
-                }
-
-                $ratioBox .= '"><span class="intrinsic-ratio-helper" style="padding-bottom: ';
             }
 
             $matches = array();
@@ -163,9 +151,23 @@ if ( ! class_exists( 'LazySizes' ) ) :
 
                     $replaceHTML .= '<noscript>' . $imgHTML . '</noscript>';
 
+                    if ($type == 'ratio' && $this->_get_option('intrinsicRatio') != 'false') {
+                        if (preg_match('/width=["|\']*(\d+)["|\']*/', $imgHTML, $width) == 1 && preg_match('/height=["|\']*(\d+)["|\']*/', $imgHTML, $height) == 1) {
 
-                    if($ratioBox && preg_match('/width=["|\']*(\d+)["|\']*/', $imgHTML, $width) == 1 && preg_match('/height=["|\']*(\d+)["|\']*/', $imgHTML, $height) == 1){
-                        $replaceHTML = $ratioBox . (($height[1] / $width[1]) * 100) .'%;"></span>'.$replaceHTML.'</span>';
+                            $ratioBox = '<span class="intrinsic-ratio-box';
+                            if(preg_match('/(align(none|left|right|center))/',$imgHTML, $align_class) == 1){
+                                $ratioBox .= ' ' . $align_class[0];
+                                $replaceHTML = str_replace($align_class[0], '', $replaceHTML);
+                            }
+                            if ($this->_get_option('intrinsicRatio') == 'animated') {
+                                $ratioBox .= ' lazyload" data-expand="-1';
+                            }
+
+                            $ratioBox .= '" style="max-width: ' . $width[1] . 'px; max-height: ' . $height[1] . 'px;';
+
+                            $ratioBox .= '"><span class="intrinsic-ratio-helper" style="padding-bottom: ';
+                            $replaceHTML = $ratioBox . (($height[1] / $width[1]) * 100) . '%;"></span>' . $replaceHTML . '</span>';
+                        }
                     }
 
                     array_push( $search, $imgHTML );

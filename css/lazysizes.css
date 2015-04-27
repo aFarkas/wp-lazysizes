@@ -23,6 +23,7 @@
 .intrinsic-ratio-box {
     position: relative;
     display: block;
+    width: 100%;
 }
 
 .intrinsic-ratio-helper {
