@@ -1,17 +1,21 @@
 <?php
+
 add_action( 'admin_menu', 'lazysizes_add_admin_menu' );
 add_action( 'admin_init', 'lazysizes_settings_init' );
 
 
-function lazysizes_add_admin_menu(  ) {
+function lazysizes_add_admin_menu() {
+
     add_options_page( 'WP LazySizes', 'WP LazySizes', 'manage_options', 'wp-lazysizes', 'lazysizes_options_page' );
 }
 
 
-function lazysizes_settings_init(  ) {
+function lazysizes_settings_init() {
+
     global $lazySizesDefaults;
+
     register_setting( 'pluginPage', 'lazysizes_settings' );
-    add_option( 'lazysizes_settings', $lazySizesDefaults);
+    add_option( 'lazysizes_settings', $lazySizesDefaults );
 
     add_settings_section(
         'lazysizes_pluginPage_section',
@@ -27,7 +31,6 @@ function lazysizes_settings_init(  ) {
         'pluginPage',
         'lazysizes_pluginPage_section'
     );
-
 
     add_settings_field(
         'iframes',
@@ -47,8 +50,6 @@ function lazysizes_settings_init(  ) {
         'autosize'
     );
 
-
-
     add_settings_field(
         'optimumx',
         __( 'optimumx (max. HighDPI)', 'wordpress' ),
@@ -65,31 +66,28 @@ function lazysizes_settings_init(  ) {
         'lazysizes_pluginPage_section'
     );
 
-	add_settings_field(
-		'preloadAfterLoad',
-		__( 'load after Onload', 'wordpress' ),
-		'lazysizes_preloadAfterLoad',
-		'pluginPage',
-		'lazysizes_pluginPage_section'
-	);
-
+    add_settings_field(
+        'preloadAfterLoad',
+        __( 'load after Onload', 'wordpress' ),
+        'lazysizes_preloadAfterLoad',
+        'pluginPage',
+        'lazysizes_pluginPage_section'
+    );
 }
-
 
 function checkBox( $name ) {
 
     $options = get_option( 'lazysizes_settings' );
 
-    if(!isset($options[$name])){
+    if ( ! isset( $options[ $name ] ) ) {
         $options[$name] = false;
     }
     ?>
     <input type='checkbox' name='lazysizes_settings[<?php echo $name; ?>]' <?php checked( $options[$name], 'true' ); ?> value='true'>
 <?php
-
 }
 
-function lazysizes_optimumxSetting(  ) {
+function lazysizes_optimumxSetting() {
 
     $options = get_option( 'lazysizes_settings' );
     if(!isset($options['optimumx'])){
@@ -110,20 +108,20 @@ function lazysizes_optimumxSetting(  ) {
 function lazysizes_preloadAfterLoad(  ) {
 
     $options = get_option( 'lazysizes_settings' );
-    if(!isset($options['preloadAfterLoad'])){
+    if ( ! isset( $options['preloadAfterLoad'] ) ) {
         $options['preloadAfterLoad'] = 'false';
     }
     ?>
     <select name='lazysizes_settings[preloadAfterLoad]'>
-	    <option value='false' <?php selected( $options['preloadAfterLoad'], 'false' ); ?>>Off</option>
-	    <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
+        <option value='false' <?php selected( $options['preloadAfterLoad'], 'false' ); ?>>Off</option>
+        <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
         <option value='smart' <?php selected( $options['preloadAfterLoad'], 2 ); ?>>Smart (desktop - on, mobile - off)</option>
     </select>
 <?php
 
 }
 
-function lazysizes_expandSetting(  ) {
+function lazysizes_expandSetting() {
 
     $options = get_option( 'lazysizes_settings' );
     ?>
@@ -132,12 +130,10 @@ function lazysizes_expandSetting(  ) {
 
 }
 
-
-
-function lazysizes_intrinsicRatioSetting(  ) {
+function lazysizes_intrinsicRatioSetting() {
 
     $options = get_option( 'lazysizes_settings' );
-    if(!isset($options['intrinsicRatio'])){
+    if ( ! isset( $options['intrinsicRatio'] ) ) {
         $options['intrinsicRatio'] = 'false';
     }
     ?>
@@ -148,18 +144,15 @@ function lazysizes_intrinsicRatioSetting(  ) {
     </select>
 
 <?php
-
 }
 
-
-function lazysizes_settings_section_callback(  ) {
+function lazysizes_settings_section_callback() {
 
     //echo __( '', 'wordpress' );
-
 }
 
 
-function lazysizes_options_page(  ) {
+function lazysizes_options_page() {
 
     ?>
     <form action='options.php' method='post'>
@@ -174,5 +167,4 @@ function lazysizes_options_page(  ) {
 
     </form>
 <?php
-
 }

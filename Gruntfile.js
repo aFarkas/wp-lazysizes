@@ -10,7 +10,7 @@
 						{
 							expand: true,
 							cwd: 'node_modules/',
-							src: ['lazysizes/**/*.min.js'],
+							src: ['lazysizes/**/*.js'],
 							dest: 'js/'
 						}
 					]

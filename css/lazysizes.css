@@ -9,7 +9,7 @@
 .lazyloading {
     opacity: 1;
     transition: 600ms opacity;
-    background: #f7f7f7 url(../imgs/loader.gif) no-repeat center;
+    background: #f7f7f7 url(../img/loader.gif) no-repeat center;
     min-height: 35px;
     min-width: 35px;
 }
