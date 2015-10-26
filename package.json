@@ -1,7 +1,7 @@
 {
   "name": "wp-lazysizes",
   "description": "Lazyload responsive images with automatic sizes calculation",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "author": "Alexander Farkas <info@corrupt-system.de>",
   "contributors": [{
     "name": "Viktor Szépe",

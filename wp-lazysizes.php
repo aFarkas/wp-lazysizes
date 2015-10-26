@@ -10,7 +10,7 @@
 Plugin Name:       WP LazySizes
 Plugin URI:        https://github.com/aFarkas/wp-lazysizes
 Description:       Lazyload responsive images with automatic sizes calculation
-Version:           0.9.2
+Version:           0.9.3
 Author:            Alexander Farkas
 Author URI:        https://github.com/aFarkas/
 License:           GPL-2.0+
