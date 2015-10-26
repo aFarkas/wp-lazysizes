@@ -27,22 +27,18 @@
 
 	var parseWsrcset = (function(){
 		var candidates;
-		var reg = /(([^,\s].[^\s]+)\s+(\d+)w)/g;
-		var regHDesc = /\s+\d+h/g;
-		var addCandidate = function(match, candidate, url, wDescriptor){
+		var reg = /(([^,\s].[^\s]+)\s+(\d+)(w|h)(\s+(\d+)(w|h))?)/g;
+		var addCandidate = function(match, candidate, url, descNumber1, descType1, fullDesc, descNumber2, descType2){
 			candidates.push({
 				c: candidate,
 				u: url,
-				w: wDescriptor * 1
+				w: (descType2 == 'w' ? descNumber2 : descNumber1)  * 1
 			});
 		};
 
 		return function(input){
 			candidates = [];
-			input
-				.replace(regHDesc, '')
-				.replace(reg, addCandidate)
-			;
+			input.replace(reg, addCandidate);
 			return candidates;
 		};
 	})();
@@ -201,9 +197,9 @@
 			if(dpr > 2.4){
 				dpr *= 0.7; // returns 2.1 for 3
 			} else if(dpr > 1.9){
-				dpr *= 0.8; // returns 1.6 for 2
+				dpr *= 0.85; // returns 1.7 for 2
 			}
-			return Math.min(Math.round(dpr * 100) / 100, 2);
+			return Math.min(Math.round(dpr * 100) / 100, 2.2);
 		};
 	}
 
@@ -228,7 +224,7 @@
 	});
 
 	addEventListener('lazybeforeunveil', function(e){
-		if(e.target._lazyOptimumx){
+		if(e.target._lazyOptimumx && !e.detail.reloaded){
 			e.target._lazyOptimumx = null;
 		}
 	});

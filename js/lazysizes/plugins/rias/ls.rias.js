@@ -15,6 +15,7 @@
 	var anchor = document.createElement('a');
 	var img = document.createElement('img');
 	var buggySizes = ('srcset' in img) && !('sizes' in img);
+	var supportPicture = !!window.HTMLPictureElement && ('sizes' in document.createElement('img'));
 
 	(function(){
 		var prop;
@@ -51,13 +52,12 @@
 			(function (widths){
 				var width;
 				var i = 0;
-				widths.push(96);
-				while(!width || width < 2800){
-					i += 10;
-					if(i > 60){
-						i += 10;
+				while(!width || width < 3000){
+					i += 5;
+					if(i > 30){
+						i += 1;
 					}
-					width = (16 * i);
+					width = (36 * i);
 					widths.push(width);
 				}
 			})(riasCfg.widths);
@@ -176,38 +176,55 @@
 	}
 
 	addEventListener('lazybeforeunveil', function(e){
-		var elem, src, elemOpts, parent, sources, i, len, sourceSrc, sizes, detail;
+		var elem, src, elemOpts, parent, sources, i, len, sourceSrc, sizes, detail, hasPlaceholder, modified, emptyList;
 		elem = e.target;
 
-		if(e.defaultPrevented || !(src = getSrc(elem)) || riasCfg.disabled || !((sizes = elem.getAttribute(config.sizesAttr) || elem.getAttribute('sizes')) && regAllowedSizes.test(sizes))){return;}
+		if(e.defaultPrevented || riasCfg.disabled || !((sizes = elem.getAttribute(config.sizesAttr) || elem.getAttribute('sizes')) && regAllowedSizes.test(sizes))){return;}
+
+		src = getSrc(elem);
 
 		elemOpts = createAttrObject(elem, src);
 
-		if(regWidth.test(src) || regWidth.test(elemOpts.prefix) || regWidth.test(elemOpts.postfix)){
-			if(elemOpts.isPicture && (parent = elem.parentNode)){
-				sources = parent.getElementsByTagName('source');
-				for(i = 0, len = sources.length; i < len; i++){
-					sourceSrc = getSrc(sources[i]);
+		hasPlaceholder = regWidth.test(elemOpts.prefix) || regWidth.test(elemOpts.postfix);
+
+		if(elemOpts.isPicture && (parent = elem.parentNode)){
+			sources = parent.getElementsByTagName('source');
+			for(i = 0, len = sources.length; i < len; i++){
+				if ( hasPlaceholder || regWidth.test(sourceSrc = getSrc(sources[i])) ){
 					setSrc(sourceSrc, elemOpts, sources[i]);
+					modified = true;
 				}
 			}
-
-			setSrc(src, elemOpts, elem);
 		}
 
-		if(sizes != 'auto'){
-			detail = {
-				width: parseInt(sizes, 10)
-			};
-			polyfill({
-				target: elem,
-				detail: detail,
-				details: detail
+		if ( hasPlaceholder || regWidth.test(src) ){
+			setSrc(src, elemOpts, elem);
+			modified = true;
+		} else if (modified) {
+			emptyList = [];
+			emptyList.srcset = [];
+			emptyList.isPicture = true;
+			Object.defineProperty(elem, '_lazyrias', {
+				value: emptyList,
+				writable: true
 			});
 		}
 
+		if(modified){
+			if(supportPicture){
+				elem.removeAttribute(config.srcAttr);
+			} else if(sizes != 'auto') {
+				detail = {
+					width: parseInt(sizes, 10)
+				};
+				polyfill({
+					target: elem,
+					detail: detail,
+					details: detail
+				});
+			}
+		}
 	});
-
 	// partial polyfill
 	var polyfill = (function(){
 		var ascendingSort = function( a, b ) {
@@ -225,11 +242,12 @@
 				candidate.d = candidate.w / srces.w;
 				if(candidate.d >= srces.d){
 					if(!candidate.cached && (lowerCandidate = srces[i - 1]) &&
-						lowerCandidate.d > srces.d - (0.2 * Math.pow(srces.d, 1.7))){
-						bonusFactor = Math.pow(lowerCandidate.d - 0.4, 1.3);
+						lowerCandidate.d > srces.d - (0.13 * Math.pow(srces.d, 2.2))){
+
+						bonusFactor = Math.pow(lowerCandidate.d - 0.6, 1.6);
 
 						if(lowerCandidate.cached) {
-							lowerCandidate.d += 0.2 * bonusFactor;
+							lowerCandidate.d += 0.15 * bonusFactor;
 						}
 
 						if(lowerCandidate.d + ((candidate.d - srces.d) * bonusFactor) > srces.d){
@@ -259,7 +277,7 @@
 		var getX = function(elem){
 			var dpr = window.devicePixelRatio || 1;
 			var optimum = lazySizes.getX && lazySizes.getX(elem);
-			return Math.min(optimum || dpr, 2.7, dpr);
+			return Math.min(optimum || dpr, 2.5, dpr);
 		};
 
 		var getCandidate = function(elem, width){
@@ -289,12 +307,12 @@
 			var candidate;
 			var elem = e.target;
 
-			if(window.HTMLPictureElement || window.respimage || window.picturefill || lazySizesConfig.pf){
+			if(!buggySizes && (window.respimage || window.picturefill || lazySizesConfig.pf)){
 				document.removeEventListener('lazybeforesizes', polyfill);
 				return;
 			}
 
-			if(!elem._lazyrias && (!e.detail.dataAttr || !getWSet(elem, true))){
+			if(!('_lazyrias' in elem) && (!e.detail.dataAttr || !getWSet(elem, true))){
 				return;
 			}
 
@@ -308,7 +326,11 @@
 			}
 		};
 
-		document.addEventListener('lazybeforesizes', polyfill);
+		if(!supportPicture){
+			document.addEventListener('lazybeforesizes', polyfill);
+		} else {
+			polyfill = function(){};
+		}
 
 		return polyfill;
 

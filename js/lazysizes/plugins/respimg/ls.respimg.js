@@ -3,6 +3,8 @@
 	'use strict';
 	var polyfill;
 	var config = (window.lazySizes && lazySizes.cfg) || window.lazySizesConfig;
+	var img = document.createElement('img');
+	var supportSrcset = ('sizes' in img) && ('srcset' in img);
 
 	if(!config){
 		config = {};
@@ -16,6 +18,10 @@
 	}
 
 	if(window.picturefill || window.respimage || config.pf){return;}
+	if(window.HTMLPictureElement && supportSrcset){
+		config.pf = function(){};
+		return;
+	}
 
 	config.pf = function(options){
 		var i, len;
@@ -30,7 +36,7 @@
 		var ascendingSort = function( a, b ) {
 			return a.w - b.w;
 		};
-
+		var regPxLength = /^\s*\d+px\s*$/;
 		var reduceCandidate = function (srces) {
 			var lowerCandidate, bonusFactor;
 			var len = srces.length;
@@ -43,13 +49,14 @@
 
 				if(candidate.d >= srces.d){
 					if(!candidate.cached && (lowerCandidate = srces[i - 1]) &&
-						lowerCandidate.d > srces.d - (0.2 * Math.pow(srces.d, 1.7))){
-						bonusFactor = Math.pow(lowerCandidate.d - 0.4, 1.3);
+						lowerCandidate.d > srces.d - (0.13 * Math.pow(srces.d, 2.2))){
+
+						bonusFactor = Math.pow(lowerCandidate.d - 0.6, 1.6);
 
 						if(lowerCandidate.cached) {
-							lowerCandidate.d += 0.2 * bonusFactor;
+							lowerCandidate.d += 0.15 * bonusFactor;
 						}
-						
+
 						if(lowerCandidate.d + ((candidate.d - srces.d) * bonusFactor) > srces.d){
 							candidate = lowerCandidate;
 						}
@@ -131,7 +138,7 @@
 				if(isImage && elem.parentNode){
 					parsedSet.isPicture = elem.parentNode.nodeName.toUpperCase() == 'PICTURE';
 
-					if(parsedSet.isPicture && elem.getAttribute(config.sizesAttr) != 'auto'){
+					if(parsedSet.isPicture){
 						if(window.matchMedia || (window.Modernizr && Modernizr.mq)){
 							lazySizes.aC(elem, 'lazymatchmedia');
 							runMatchMedia();
@@ -150,7 +157,7 @@
 		var getX = function(elem){
 			var dpr = window.devicePixelRatio || 1;
 			var optimum = lazySizes.getX && lazySizes.getX(elem);
-			return Math.min(optimum || dpr, 2.7, dpr);
+			return Math.min(optimum || dpr, 2.5, dpr);
 		};
 
 		var matchesMedia = function(media){
@@ -186,7 +193,8 @@
 			}
 
 			if(srces.length > 1){
-				width = parseInt(source.getAttribute('sizes'), 10) || lazySizes.gW(elem, elem.parentNode);
+				width = source.getAttribute('sizes') || '';
+				width = regPxLength.test(width) && parseInt(width, 10) || lazySizes.gW(elem, elem.parentNode);
 				srces.d = getX(elem);
 				if(!srces.w || srces.w < width){
 					srces.w = width;
@@ -196,11 +204,11 @@
 				src = srces[0];
 			}
 
-
 			return src;
 		};
 
 		var p = function(elem){
+			if(supportSrcset && elem.parentNode && elem.parentNode.nodeName.toUpperCase() != 'PICTURE'){return;}
 			var candidate = getCandidate(elem);
 
 			if(candidate && candidate.u && elem._lazypolyfill.cur != candidate.u){
@@ -215,8 +223,6 @@
 
 		return p;
 	})();
-
-	if(window.HTMLPictureElement){return;}
 
 	if(config.loadedClass && config.loadingClass){
 		(function(){
@@ -254,7 +260,7 @@
 	var regPicture;
 	var img = document.createElement('img');
 
-	if(('srcset' in img) && !('sizes' in img)){
+	if(('srcset' in img) && !('sizes' in img) && !window.HTMLPictureElement){
 		regPicture = /^picture$/i;
 		document.addEventListener('lazybeforeunveil', function(e){
 			var elem, parent, srcset, sizes, isPicture;

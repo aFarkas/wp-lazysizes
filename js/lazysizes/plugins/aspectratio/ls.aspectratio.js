@@ -3,6 +3,8 @@
 
 	if(!window.addEventListener){return;}
 
+	var forEach = Array.prototype.forEach;
+
 	var imageRatio, extend$, $;
 
 	var regPicture = /^picture$/i;
@@ -72,15 +74,12 @@
 			addEventListener('resize', (function(){
 				var timer;
 				var resize = function(){
-					var i, len;
-					for(i = 0, len = module.ratioElems.length; i < len; i++){
-						addRemoveAspectRatio(module.ratioElems[i]);
-					}
+					forEach.call(module.ratioElems, addRemoveAspectRatio);
 				};
 
 				return function(){
 					clearTimeout(timer);
-					timer = setTimeout(resize, 33);
+					timer = setTimeout(resize, 99);
 				};
 			})());
 
@@ -150,14 +149,15 @@
 		addAspectRatio: function(img, notNew){
 			var ratio;
 			var width = img.offsetWidth;
+			var height = img.offsetHeight;
 
 			if(!notNew){
 				addClass(img, 'lazyaspectratio');
 			}
 
-			if(width < 36){
-				if(width && window.console){
-					console.log('Define width of image, so we can calculate the height');
+			if(width < 36 && height <= 0){
+				if(width || height && window.console){
+					console.log('Define width or height of image, so we can calculate the other dimension');
 				}
 				return;
 			}
@@ -166,12 +166,17 @@
 			ratio = this.parseRatio(ratio);
 
 			if(ratio){
-				img.style.height = (width / ratio) + 'px';
+				if(width){
+					img.style.height = (width / ratio) + 'px';
+				} else {
+					img.style.width = (height * ratio) + 'px';
+				}
 			}
 		},
 		removeAspectRatio: function(img){
 			removeClass(img, 'lazyaspectratio');
 			img.style.height = '';
+			img.style.width = '';
 			img.removeAttribute(aspectRatioAttr);
 		}
 	};
