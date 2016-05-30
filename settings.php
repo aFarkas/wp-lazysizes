@@ -115,7 +115,7 @@ function lazysizes_preloadAfterLoad(  ) {
     <select name='lazysizes_settings[preloadAfterLoad]'>
         <option value='false' <?php selected( $options['preloadAfterLoad'], 'false' ); ?>>Off</option>
         <option value='true' <?php selected( $options['preloadAfterLoad'], 'true' ); ?>>On</option>
-        <option value='smart' <?php selected( $options['preloadAfterLoad'], 2 ); ?>>Smart (desktop - on, mobile - off)</option>
+        <option value='smart' <?php selected( $options['preloadAfterLoad'], 'smart' ); ?>>Smart (desktop - on, mobile - off)</option>
     </select>
 <?php
 
