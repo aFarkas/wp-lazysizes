@@ -1,0 +1,14 @@
+{
+    "name": "afarkas/wp-lazysizes",
+    "description": "Lazyload responsive images with automatic sizes calculation",
+    "require": {
+        "phpunit/phpunit": "^5.3"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Alexander Farkas",
+            "email": "info@corrupt-system.de"
+        }
+    ]
+}
