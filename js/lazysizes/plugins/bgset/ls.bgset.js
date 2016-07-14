@@ -6,29 +6,30 @@
 	var regSplitSet = /\s*\|\s+|\s+\|\s*/g;
 	var regSource = /^(.+?)(?:\s+\[\s*(.+?)\s*\])?$/;
 	var allowedBackgroundSize = {contain: 1, cover: 1};
-	var rAF = window.requestAnimationFrame || setTimeout;
-
 	var proxyWidth = function(elem){
 		var width = lazySizes.gW(elem, elem.parentNode);
+
 		if(!elem._lazysizesWidth || width > elem._lazysizesWidth){
 			elem._lazysizesWidth = width;
 		}
 		return elem._lazysizesWidth;
 	};
+	var getBgSize = function(elem){
+		var bgSize;
 
-	var createPicture = function(sets, elem, img){
-		var picture = document.createElement('picture');
-		var sizes = elem.getAttribute(lazySizesConfig.sizesAttr);
-		var optimumx = elem.getAttribute('data-optimumx');
-		var bgSize = (getComputedStyle(elem) || {getPropertyValue: function(){}}).getPropertyValue('background-size');
+		bgSize = (getComputedStyle(elem) || {getPropertyValue: function(){}}).getPropertyValue('background-size');
 
 		if(!allowedBackgroundSize[bgSize] && allowedBackgroundSize[elem.style.backgroundSize]){
 			bgSize = elem.style.backgroundSize;
 		}
-		if(allowedBackgroundSize[bgSize] && (sizes == 'auto' || !sizes)){
-			img.setAttribute('data-parent-fit', bgSize);
-			sizes = 'auto';
-		}
+
+		return bgSize;
+	};
+	var createPicture = function(sets, elem, img){
+		var picture = document.createElement('picture');
+		var sizes = elem.getAttribute(lazySizesConfig.sizesAttr);
+		var ratio = elem.getAttribute('data-ratio');
+		var optimumx = elem.getAttribute('data-optimumx');
 
 		if(elem._lazybgset && elem._lazybgset.parentNode == elem){
 			elem.removeChild(elem._lazybgset);
@@ -76,6 +77,9 @@
 		if(optimumx){
 			img.setAttribute('data-optimumx', optimumx);
 		}
+		if(ratio) {
+			img.setAttribute('data-ratio', ratio);
+		}
 
 		picture.appendChild(img);
 
@@ -107,23 +111,45 @@
 		elem = e.target;
 		image = document.createElement('img');
 
+		image.alt = '';
+
 		image._lazybgsetLoading = true;
 		e.detail.firesLoad = true;
 
 		createPicture(set, elem, image);
 
-		lazySizes.loader.unveil(image);
+		setTimeout(function(){
+			lazySizes.loader.unveil(image);
 
-		rAF(function(){
-			lazySizes.fire(image, '_lazyloaded', {}, true, true);
-			if(image.complete) {
-				proxyLoad({target: image});
-			}
+			lazySizes.rAF(function(){
+				lazySizes.fire(image, '_lazyloaded', {}, true, true);
+				if(image.complete) {
+					proxyLoad({target: image});
+				}
+			});
 		});
 
 	});
 
 	document.addEventListener('load', proxyLoad, true);
+
+	window.addEventListener('lazybeforesizes', function(e){
+		if(e.target._lazybgset && e.detail.dataAttr){
+			var elem = e.target._lazybgset;
+			var bgSize = getBgSize(elem);
+
+			if(allowedBackgroundSize[bgSize]){
+				e.target._lazysizesParentFit = bgSize;
+
+				lazySizes.rAF(function(){
+					e.target.setAttribute('data-parent-fit', bgSize);
+					if(e.target._lazysizesParentFit){
+						delete e.target._lazysizesParentFit;
+					}
+				});
+			}
+		}
+	}, true);
 
 	document.documentElement.addEventListener('lazybeforesizes', function(e){
 		if(e.defaultPrevented || !e.target._lazybgset){return;}

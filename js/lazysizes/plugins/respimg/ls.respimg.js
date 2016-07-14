@@ -5,6 +5,63 @@
 	var config = (window.lazySizes && lazySizes.cfg) || window.lazySizesConfig;
 	var img = document.createElement('img');
 	var supportSrcset = ('sizes' in img) && ('srcset' in img);
+	var regHDesc = /\s+\d+h/g;
+	var fixEdgeHDescriptor = (function(){
+		var regDescriptors = /\s+(\d+)(w|h)\s+(\d+)(w|h)/;
+		var forEach = Array.prototype.forEach;
+
+		return function(edgeMatch){
+			var img = document.createElement('img');
+			var removeHDescriptors = function(source){
+				var ratio;
+				var srcset = source.getAttribute(lazySizesConfig.srcsetAttr);
+				if(srcset){
+					if(srcset.match(regDescriptors)){
+						if(RegExp.$2 == 'w'){
+							ratio = RegExp.$1 / RegExp.$3;
+						} else {
+							ratio = RegExp.$3 / RegExp.$1;
+						}
+
+						if(ratio){
+							source.setAttribute('data-aspectratio', ratio);
+						}
+					}
+					source.setAttribute(lazySizesConfig.srcsetAttr, srcset.replace(regHDesc, ''));
+				}
+			};
+			var handler = function(e){
+				var picture = e.target.parentNode;
+
+				if(picture && picture.nodeName == 'PICTURE'){
+					forEach.call(picture.getElementsByTagName('source'), removeHDescriptors);
+				}
+				removeHDescriptors(e.target);
+			};
+
+			var test = function(){
+				if(!!img.currentSrc){
+					document.removeEventListener('lazybeforeunveil', handler);
+				}
+			};
+
+			if(edgeMatch[1]){
+				document.addEventListener('lazybeforeunveil', handler);
+
+				if(true || edgeMatch[1] > 14){
+					img.onload = test;
+					img.onerror = test;
+
+					img.srcset = 'data:,a 1w 1h';
+
+					if(img.complete){
+						test();
+					}
+				}
+			}
+		};
+	})();
+
 
 	if(!config){
 		config = {};
@@ -17,15 +74,21 @@
 		};
 	}
 
-	if(window.picturefill || window.respimage || config.pf){return;}
+	if(window.picturefill || config.pf){return;}
+
 	if(window.HTMLPictureElement && supportSrcset){
+
+		if(document.msElementsFromPoint){
+			fixEdgeHDescriptor(navigator.userAgent.match(/Edge\/(\d+)/));
+		}
+
 		config.pf = function(){};
 		return;
 	}
 
 	config.pf = function(options){
 		var i, len;
-		if(window.picturefill || window.respimage){return;}
+		if(window.picturefill){return;}
 		for(i = 0, len = options.elements.length; i < len; i++){
 			polyfill(options.elements[i]);
 		}
@@ -70,7 +133,6 @@
 		var parseWsrcset = (function(){
 			var candidates;
 			var regWCandidates = /(([^,\s].[^\s]+)\s+(\d+)w)/g;
-			var regHDesc = /\s+\d+h/g;
 			var regMultiple = /\s/;
 			var addCandidate = function(match, candidate, url, wDescriptor){
 				candidates.push({

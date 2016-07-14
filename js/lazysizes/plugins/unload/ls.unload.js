@@ -55,6 +55,7 @@
 
 			lazySizes.aC(element, config.unloadedClass);
 			lazySizes.aC(element, config.lazyClass);
+			lazySizes.fire(element, 'lazyafterunload');
 		},
 		unloadElements: function(elements){
 			elements = Array.isArray(elements) ? elements : unloadElements;
@@ -73,7 +74,7 @@
 
 	function init(){
 		if(!window.lazySizes || checkElements){return;}
-		var dpr = window.devicePixelRatio || 1;
+		var docElem = document.documentElement;
 		var throttleRun = (function(){
 			var running;
 			var run = function(){
@@ -112,12 +113,11 @@
 		}
 
 		if(!('unloadPixelThreshold' in config)){
-			config.unloadPixelThreshold =  Math.max( Math.min(document.documentElement.clientWidth * dpr, document.documentElement.clientHeight * dpr, 999) - 40, 210 * dpr, 310);
-			config.unloadPixelThreshold *= config.unloadPixelThreshold / 2.5;
+			config.unloadPixelThreshold = 60000;
 		}
 
 		if(config.autoUnload){
-			document.documentElement.addEventListener('load',  function(e){
+			docElem.addEventListener('load',  function(e){
 				if(e.target.naturalWidth * e.target.naturalHeight > config.unloadPixelThreshold && e.target.className &&
 					e.target.className.indexOf && e.target.className.indexOf(lazySizesConfig.loadingClass) != -1 &&
 					e.target.className.indexOf(lazySizesConfig.preloadClass) == -1){
@@ -135,8 +135,6 @@
 		addEventListener('lazybeforeunveil', throttleRun);
 		addEventListener('lazybeforeunveil', unloader._reload, true);
 	}
-
-	setTimeout(init);
 
 	addEventListener('lazybeforeunveil', init);
 })(window, document);

@@ -96,26 +96,39 @@
 
 	var constraintFns = {
 		_lazyOptimumx: (function(){
-			var takeHighRes = function (beforeCan, curCanWidth, width){
-				var low, high;
-				if(!beforeCan || !beforeCan.w){
+			var takeHighRes = function (lowerCandidate, higherCandidateResolution, optimumx){
+				var low, bonusFactor, substract;
+				if(!lowerCandidate || !lowerCandidate.d){
 					return true;
 				}
 
-				if(beforeCan.w > width){return false;}
+				substract = optimumx > 0.7 ? 0.6 : 0.4;
 
-				low = 1 - (beforeCan.w / width);
-				high = (curCanWidth / width) - 1;
+				if(lowerCandidate.d >= optimumx){return false;}
 
-				return high - low < 0;
+				bonusFactor = Math.pow(lowerCandidate.d - substract, 1.6) || 0.1;
+
+				if(bonusFactor < 0.1){
+					bonusFactor = 0.1;
+				} else if(bonusFactor > 3){
+					bonusFactor = 3;
+				}
+
+				low = lowerCandidate.d + ((higherCandidateResolution - optimumx) * bonusFactor);
+
+				return low < optimumx;
 			};
 
-			return function (data, width){
+			return function (data, width, optimumx){
 				var i, can;
 
-				for(i = data.index + 1; i < data.cands.length; i++){
+				for(i = 0; i < data.cands.length; i++){
 					can = data.cands[i];
-					if(can.w <= width || takeHighRes(data.cands[i - 1], can.w, width)){
+					can.d = (can.w || 1) / width;
+
+					if(data.index >= i){continue;}
+
+					if(can.d <= optimumx || takeHighRes(data.cands[i - 1], can.d, optimumx)){
 						data.cSrcset.push(can.c);
 						data.index = i;
 					} else {
@@ -128,14 +141,14 @@
 
 	var constrainSets = (function(){
 
-		var constrainSet = function(elem, width, attr, dataName){
+		var constrainSet = function(elem, displayWidth, optimumx, attr, dataName){
 			var curIndex;
 			var lazyData = elem[dataName];
 
 			if(!lazyData){return;}
 			curIndex = lazyData.index;
 
-			constraintFns[dataName](lazyData, width);
+			constraintFns[dataName](lazyData, displayWidth, optimumx);
 
 			if(!lazyData.dirty || curIndex != lazyData.index){
 				lazyData.cSrcset.join(', ');
@@ -144,25 +157,30 @@
 			}
 		};
 
-		return function(image, width, attr, dataName){
+		return function(image, displayWidth, optimumx, attr, dataName){
 			var sources, parent, len, i;
 			var lazyData = image[dataName];
 
-			lazyData.width = width;
+			lazyData.width = displayWidth;
 
 			if(lazyData.picture && (parent = image.parentNode)){
 				sources = parent.getElementsByTagName('source');
 				for(i = 0, len = sources.length; i < len; i++){
-					constrainSet(sources[i], width, attr, dataName);
+					constrainSet(sources[i], displayWidth, optimumx, attr, dataName);
 				}
 			}
 
-			constrainSet(image, width, attr, dataName);
+			constrainSet(image, displayWidth, optimumx, attr, dataName);
 		};
 	})();
 
 	var getOptimumX = function(element){
 		var optimumx = element.getAttribute('data-optimumx') || element.getAttribute('data-maxdpr');
+
+		if(!optimumx && config.constrainPixelDensity){
+			optimumx = 'auto';
+		}
+
 		if(optimumx){
 			if(optimumx == 'auto'){
 				optimumx = config.getOptimumX(element);
@@ -194,12 +212,14 @@
 	if(typeof config.getOptimumX != 'function'){
 		config.getOptimumX = function(/*element*/){
 			var dpr = window.devicePixelRatio || 1;
-			if(dpr > 2.4){
-				dpr *= 0.7; // returns 2.1 for 3
+			if(dpr > 2.6){
+				dpr *= 0.6; // returns 1.8 for 3
 			} else if(dpr > 1.9){
-				dpr *= 0.85; // returns 1.7 for 2
+				dpr *= 0.8; // returns 1.6 for 2
+			} else {
+				dpr -= 0.01; // returns 0.99 for 1
 			}
-			return Math.min(Math.round(dpr * 100) / 100, 2.2);
+			return Math.min(Math.round(dpr * 100) / 100, 2);
 		};
 	}
 
@@ -208,24 +228,28 @@
 	addEventListener('lazybeforesizes', function(e){
 		var optimumx, lazyData, width, attr;
 
+		var elem = e.target;
+		var detail = e.detail;
+		var dataAttr = detail.dataAttr;
+
 		if(e.defaultPrevented ||
-			!(optimumx = getOptimumX(e.target)) ||
+			!(optimumx = getOptimumX(elem)) ||
 			optimumx >= devicePixelRatio){return;}
 
-		lazyData = parseImg(e.target, '_lazyOptimumx');
+		if(dataAttr && elem._lazyOptimumx && !detail.reloaded && (!config.unloadedClass || !lazySizes.hC(elem, config.unloadedClass))){
+			elem._lazyOptimumx = null;
+		}
 
-		width = e.detail.width * optimumx;
+		lazyData = parseImg(elem, '_lazyOptimumx');
+
+		width = detail.width;
 
 		if(width && (lazyData.width || 0) < width){
-			attr = e.detail.dataAttr ? lazySizes.cfg.srcsetAttr : 'srcset';
+			attr = dataAttr ? lazySizes.cfg.srcsetAttr : 'srcset';
 
-			constrainSets(e.target, width, attr, '_lazyOptimumx');
-		}
-	});
-
-	addEventListener('lazybeforeunveil', function(e){
-		if(e.target._lazyOptimumx && !e.detail.reloaded){
-			e.target._lazyOptimumx = null;
+			lazySizes.rAF(function(){
+				constrainSets(elem, width, optimumx, attr, '_lazyOptimumx');
+			});
 		}
 	});
 
